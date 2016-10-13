@@ -25,6 +25,9 @@ func ImagesIndex(w http.ResponseWriter, r *http.Request) {
 func GetImage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	imageId := vars["ImgId"]
+	// todo: Search for image amongst existing pages
+	// if not found, return 404
+	// if found return image json
 	fmt.Fprintln(w, "Get Image:", imageId)
 }
 

@@ -21,19 +21,19 @@ var routes = Routes{
 	Route{
 		"ImagesIndex",
 		"GET",
-		"/images",
+		"/api/v2.0/imgs",
 		ImagesIndex,
 	},
 	Route{
 		"GetImage",
 		"GET",
-		"/images/{ImgId}",
+		"/api/v2.0/imgs/{ImgId}",
 		GetImage,
 	},
 	Route{
 		"CreateImage",
 		"POST",
-		"/images",
+		"/api/v2.0/imgs",
 		CreateImage,
 	},
 }
