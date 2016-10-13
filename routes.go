@@ -30,4 +30,10 @@ var routes = Routes{
 		"/images/{ImgId}",
 		GetImage,
 	},
+	Route{
+		"CreateImage",
+		"POST",
+		"/images",
+		CreateImage,
+	},
 }

@@ -1,2 +1,7 @@
 curl -i 127.0.0.1:8080
- 
+
+// List of all images
+curl -i 127.0.0.1:8080/images
+
+// Post new image
+curl -H "Content-Type: application/json" -d '{"title":"test title","url":"http://www.testimage.com/12345.jpg"}' http://localhost:8080/images
