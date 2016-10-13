@@ -18,6 +18,8 @@ func ImagesIndex(w http.ResponseWriter, r *http.Request) {
 		Image{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"},
 	}
 
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(images); err != nil {
 		panic(err)
 	}
