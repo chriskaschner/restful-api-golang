@@ -19,7 +19,7 @@ func RepoFindImage(id int) (Image, error) {
 		}
 	}
 	// return empty Image if not found
-	return 0, fmt.Errorf("Could not find Image with id of %d", id)
+	return Image{}, fmt.Errorf("Could not find Image with id of %d", id)
 }
 
 // Original function

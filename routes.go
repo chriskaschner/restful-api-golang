@@ -19,6 +19,12 @@ var routes = Routes{
 		Index,
 	},
 	Route{
+		"Not Found",
+		"GET",
+		"/{[a-z0-9]+}",
+		NotFound,
+	},
+	Route{
 		"ImagesIndex",
 		"GET",
 		"/api/v2.0/imgs",
