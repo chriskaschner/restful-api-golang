@@ -12,15 +12,26 @@ func init() {
 	RepoCreateImage(Image{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"})
 }
 
-func RepoFindImage(id int) Image {
+func RepoFindImage(id int) (Image, error) {
 	for _, t := range images {
 		if t.Id == id {
-			return t
+			return t, nil
 		}
 	}
 	// return empty Image if not found
-	return Image{}
+	return 0, fmt.Errorf("Could not find Image with id of %d", id)
 }
+
+// Original function
+// func RepoFindImage(id int) Image {
+// 	for _, t := range images {
+// 		if t.Id == id {
+// 			return t
+// 		}
+// 	}
+// 	// return empty Image if not found
+// 	return Image{}
+// }
 
 func RepoCreateImage(t Image) Image {
 	currentId += 1
