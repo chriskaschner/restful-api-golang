@@ -34,7 +34,7 @@ var routes = Routes{
 		"GetImage",
 		"GET",
 		"/api/v2.0/imgs/{ImgId}",
-		GetImage,
+		RepoGetImage,
 	},
 	Route{
 		"CreateImage",

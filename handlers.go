@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -36,21 +37,24 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Get Image:", imageId)
 }
 
-// func RepoGetImage(w http.ResponseWriter, r *http.Request) {
-// 	var image Image
-//
-// 	vars := mux.Vars(r)
-// 	imageId := vars["ImgId"]
-// 	// todo: Search for image amongst existing pages
-// 	// if not found, return 404
-// 	// if found return image json
-// 	t := RepoFindImage(imageId)
-// 	// w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-// 	// w.WriteHeader(http.StatusCreated)
-// 	if err := json.NewEncoder(w).Encode(t); err != nil {
-// 		panic(err)
-// 	}
-// }
+func RepoGetImage(w http.ResponseWriter, r *http.Request) {
+	// 	var image Image
+	//
+	vars := mux.Vars(r)
+	imageId := vars["ImgId"]
+	// Convert string to int
+	imageIDint, err := strconv.Atoi(imageId)
+	// 	// todo: Search for image amongst existing pages
+	// 	// if not found, return 404
+	// 	// if found return image json
+	t := RepoFindImage(imageIDint, err)
+	// 	// w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	// 	// w.WriteHeader(http.StatusCreated)
+	// 	if err := json.NewEncoder(w).Encode(t); err != nil {
+	// 		panic(err)
+	// }
+	return t
+}
 
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 	var image Image
