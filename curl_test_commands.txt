@@ -1,0 +1,17 @@
+// index
+curl -i 127.0.0.1:8080
+
+// List of all images
+curl -i http://localhost:8080/img/api/v2.0/images
+
+// Post new image
+curl -H "Content-Type: application/json" -d '{"title":"test title","url":"http://www.testimage.com/12345.jpg"}' http://localhost:8080/images
+
+curl -i -H "Content-Type: application/json" -d '{"title":"test title","url":"http://www.testimage.com/12345.jpg"}' http://localhost:8080/img/api/v2.0/images
+
+curl -i -H "Content-Type: application/json" -d '{"username": "dennis", "balance": 200}'  http://localhost:8080/users
+
+// Changed to Title checking
+curl -i -H "Content-Type: application/json" -d '{"title": "dennis", "balance": 200}'  http://localhost:8080/users
+
+curl -i -H "Content-Type: application/json" -d '{"username": "dennis","title": "http://www.testimage.com/12345.jpg", "balance": 200}'  http://localhost:8080/users

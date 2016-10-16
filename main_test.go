@@ -1,4 +1,4 @@
-package main_test
+package main
 
 import (
 	"fmt"
@@ -10,15 +10,17 @@ import (
 )
 
 var (
-	server   *httptest.Server
-	reader   io.Reader
-	usersUrl string
+	server    *httptest.Server
+	reader    io.Reader
+	usersUrl  string
+	imagesUrl string
 )
 
 func init() {
 	server = httptest.NewServer(Handlers())
 
 	usersUrl = fmt.Sprintf("%s/users", server.URL)
+	imagesUrl = fmt.Sprintf("%s/img/api/v2.0/images", server.URL)
 }
 
 func TestCreateUser(t *testing.T) {
@@ -70,5 +72,21 @@ func TestListUsers(t *testing.T) {
 
 	if res.StatusCode != 200 {
 		t.Errorf("Success expected: %d", res.StatusCode)
+	}
+}
+
+func TestListImages(t *testing.T) {
+	reader = strings.NewReader("")
+
+	request, err := http.NewRequest("GET", imagesUrl, reader)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("Get List of Images- received %d expected 200", res.StatusCode)
 	}
 }

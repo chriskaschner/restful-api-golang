@@ -90,13 +90,20 @@ func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err = validateUniqueness(p.Username)
-	//
-	// if err != nil {
-	// 	fmt.Printf("Error: %s\n", err)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
+	err = ValidateUnique(p.Url)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		preexisting, err := json.Marshal(`{error: "image already exists in DB"}`)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(preexisting)
+		return
+	}
 
 	img := Image{
 		Id:    imgIdCounter,
@@ -151,7 +158,6 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateUniqueness(title string) error {
-	fmt.Println("in loop")
 	for _, u := range userStore {
 		if u.Title == title {
 			return errors.New("Title is already used")
@@ -161,6 +167,15 @@ func validateUniqueness(title string) error {
 	return nil
 }
 
+func ValidateUnique(url string) error {
+	for _, u := range ImgStore {
+		if u.Url == url {
+			return errors.New("url is already used")
+		}
+	}
+
+	return nil
+}
 func listUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := json.Marshal(userStore)
 
