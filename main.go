@@ -1,13 +1,13 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+
+	"github.com/chriskaschner/restful-api-golang/api"
 )
 
 func main() {
-
-	router := NewRouter()
-
-	log.Fatal(http.ListenAndServe(":8080", router))
+	fmt.Println("Server starting")
+	http.ListenAndServe(":8080", api.Handlers())
 }
