@@ -19,6 +19,8 @@ _cgo_export.*
 
 _testmain.go
 
+restful-api-golang
+
 *.exe
 *.test
 *.prof
