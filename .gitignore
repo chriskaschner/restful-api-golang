@@ -21,6 +21,7 @@ _testmain.go
 
 restful-api-golang
 
+.DS_Store
 *.exe
 *.test
 *.prof
