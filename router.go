@@ -14,11 +14,14 @@ func Handlers() *mux.Router {
 	// images index
 	s.HandleFunc("/images", ImagesIndex).Methods("GET")
 
-	// new images
+	// create new image
 	s.HandleFunc("/images", CreateImageHandler).Methods("POST")
 
 	// runs inference on an image using Inception model
 	s.HandleFunc("/inference", Inference).Methods("GET")
+
+	// gets image size
+	s.HandleFunc("/resize", GetImageSize).Methods("GET")
 
 	r.HandleFunc("/users", createUserHandler).Methods("POST")
 
