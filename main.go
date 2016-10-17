@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/chriskaschner/Inception-Retraining-Golang"
 	"github.com/gorilla/mux"
 )
 
@@ -205,31 +206,28 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Get Image:", imageId)
 }
 
+func Inference(w http.ResponseWriter, r *http.Request) {
+	// vars := mux.Vars(r)
+	// imageId := vars["ImgId"]
+	// todo: Search for image amongst existing pages
+	// if not found, return 404
+	// if found return image json
+	inf_result, err := json.Marshal(inception.Inference())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(inf_result)
+}
+
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
 		panic(err)
 	}
-}
-func Handlers() *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/", Index).Methods("GET")
-
-	// subrouter to add prefix for all other handlers
-	s := r.PathPrefix("/img/api/v2.0").Subrouter()
-
-	// images index
-	s.HandleFunc("/images", ImagesIndex).Methods("GET")
-
-	// new images
-	s.HandleFunc("/images", CreateImageHandler).Methods("POST")
-
-	r.HandleFunc("/users", createUserHandler).Methods("POST")
-
-	r.HandleFunc("/users", listUsersHandler).Methods("GET")
-
-	return r
 }
 
 func main() {
