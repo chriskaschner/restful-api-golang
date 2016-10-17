@@ -1,6 +1,7 @@
 // index
 curl -i 127.0.0.1:8080
 
+curl -i -d '{"title":"test title","Url":"http://www.testimage.com/12345.jpg"}' http://localhost:8080/img/api/v2.0/inference
 // List of all images
 curl -i http://localhost:8080/img/api/v2.0/images
 

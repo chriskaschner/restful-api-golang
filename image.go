@@ -26,11 +26,5 @@ func ImageSize(url string) (int, int) {
 	height := g.Dy()
 	width := g.Dx()
 
-	// Print results
-	// tempHeight := strconv.Itoa(height)
-	// tempWidth := strconv.Itoa(width)
-	// mapD := map[string]string{"Height": tempHeight, "Width": tempWidth}
-	// mapB, _ := json.Marshal(mapD)
-	// return string(mapB)
 	return height, width
 }

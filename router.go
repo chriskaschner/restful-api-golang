@@ -18,7 +18,7 @@ func Handlers() *mux.Router {
 	s.HandleFunc("/images", CreateImageHandler).Methods("POST")
 
 	// runs inference on an image using Inception model
-	s.HandleFunc("/inference", Inference).Methods("GET")
+	s.HandleFunc("/inference", RunInference).Methods("POST")
 
 	// gets image size
 	s.HandleFunc("/resize", GetImageSize).Methods("GET")

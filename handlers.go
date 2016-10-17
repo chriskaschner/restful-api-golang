@@ -20,10 +20,6 @@ type Size struct {
 type Result struct {
 	Result_Label_1 string  `json:"result_label_1"`
 	Result_Score_1 float32 `json:"result_score_1"`
-	Result_Label_2 string  `json:"result_label_2"`
-	Result_Score_2 float32 `json:"result_score_2"`
-	Result_Label_3 string  `json:"result_label_3"`
-	Result_Score_3 float32 `json:"result_score_3"`
 }
 
 // Image info
@@ -205,84 +201,64 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Get Image:", imageId)
 }
 
-func Inference(w http.ResponseWriter, r *http.Request) {
-	Result_Score, Result_Label := inception.Inference()
-	// inf_result, err := json.Marshal(inception.Inference())
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+func RunInference(w http.ResponseWriter, r *http.Request) {
+	// p := ImageParams{}
+	i := Image{}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &i)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	Result_Score, Result_Label := inception.Inference(i.Url)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	// w.Write(inf_result)
-	// strResultScore := strconv.FormatFloat(float64(Result_Score_1), 'f', 3, 64)
-	// mapD := map[string]float32{"Result_Score_1": Result_Score_1}
-	// mapD := map[string]string{"Result_Score_1": strResultScore, "Result_Label_1": Result_Label_1}
-	// mapB, _ := json.Marshal(mapD)
-	// w.Write(mapB)
-	InfRes := &Result{
+	InferenceRes := Result{
 		Result_Label_1: Result_Label,
 		Result_Score_1: Result_Score,
 	}
-	InfBody, _ := json.Marshal(InfRes)
-	w.Write(InfBody)
-
-	// p := ImageParams{}
-	//
-	// body, err := ioutil.ReadAll(r.Body)
-	// if err != nil {
-	//   fmt.Printf("Error: %s\n", err)
-	//   w.WriteHeader(http.StatusInternalServerError)
-	//   return
+	InferenceBody, _ := json.Marshal(InferenceRes)
+	w.Write(InferenceBody)
+	// #todo: Append new inference data to existing record
+	// img := Image{
+	// 	Id:      i.Id,
+	// 	Title:   i.Title,
+	// 	Url:     i.Url,
+	// 	Results: InferenceRes,
+	// 	Resize:  i.Resize,
+	// 	Size:    i.Size,
 	// }
 	//
 	// for _, u := range ImgStore {
-	//   if u.Url == url {
-	//     return errors.New("url is already used")
-	//   }
-	// }
-	// img := Image{
-	//   Id:    imgIdCounter,
-	//   Title: p.Title,
-	//   Url:   p.Url,
-	// }
-	//
-	// ImgStore = append(ImgStore, img)
-	// //Inference info
-	// type Result struct {
-	// 	Result_Label_1 string  `json:"result_label_1"`
-	// 	Result_Score_1 float32 `json:"result_score_1"`
-	// 	Result_Label_2 string  `json:"result_label_2"`
-	// 	Result_Score_2 float32 `json:"result_score_2"`
-	// 	Result_Label_3 string  `json:"result_label_3"`
-	// 	Result_Score_3 float32 `json:"result_score_3"`
-	// }
-	//
-	// // Image info
-	// type Image struct {
-	// 	Id      int    `json:"id"`
-	// 	Title   string `json:"title"`
-	// 	Url     string `json:"url"`
-	// 	Results Result `json:"results"`
-	// 	Resize  bool   `json:"resize"`
-	// 	Size    Size   `json:"size"`
+	// 	if u.Url == i.Url {
+	// 		fmt.Fprintln(w, "inside ImgStore URL checking loop")
+	// 		i = img
+	// 		// append(u.Results{}, InferenceBody)
+	// 		// return errors.New("url is already used")
+	// 	}
 	// }
 }
 
 func GetImageSize(w http.ResponseWriter, r *http.Request) {
 	url := "http://i.imgur.com/Peq1U1u.jpg"
 	height, width := ImageSize(url)
-	// imgsize, err := json.Marshal(ImageSize(url))
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	mapD := map[string]int{"Height": height, "Width": width}
-	mapB, _ := json.Marshal(mapD)
-	w.Write(mapB)
-	//#todo format and insert json into existing ImgStore
+	ResizeRes := &Size{
+		Height: height,
+		Width:  width,
+	}
+	ResizeBody, _ := json.Marshal(ResizeRes)
+	w.Write(ResizeBody)
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
