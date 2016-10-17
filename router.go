@@ -11,6 +11,9 @@ func Handlers() *mux.Router {
 	// subrouter to add prefix for all other handlers
 	s := r.PathPrefix("/img/api/v2.0").Subrouter()
 
+	// specific image info
+	s.HandleFunc("/images/{id:[0-9]+}", GetImage).Methods("GET")
+
 	// images index
 	s.HandleFunc("/images", ImagesIndex).Methods("GET")
 

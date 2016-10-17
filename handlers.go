@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	inception "github.com/chriskaschner/Inception-Retraining-Golang"
 	"github.com/gorilla/mux"
@@ -55,6 +57,7 @@ type UserParams struct {
 }
 
 var images Images
+var reader io.Reader
 
 var userIdCounter uint32 = 0
 var imgIdCounter int = 0
@@ -63,12 +66,10 @@ var userStore = []User{}
 var ImgStore = []Image{}
 
 // func init() {
-// 	imageJson := `{Title: "Nikes", Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 //
-// 	CreateImageHandler(`{Title: "Nikes", Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`)
-// 	CreateImageHandler(Image{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"})
+// // CreateImageHandler(`{Title: "Nikes", Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`)
+// // CreateImageHandler(`{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`)
 // }
-
 func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 	p := ImageParams{}
 
@@ -193,16 +194,26 @@ func NotFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetImage(w http.ResponseWriter, r *http.Request) {
+	// retrieve image id from URL of request
 	vars := mux.Vars(r)
-	imageId := vars["Url"]
-	// todo: Search for image amongst existing pages
+	imageId := vars["id"]
+
+	// Search for image amongst existing records in store
+	for _, u := range ImgStore {
+		IdString := strconv.Itoa(u.Id)
+		// if found, return JSON for that image
+		if IdString == imageId {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusOK)
+			ImageBody, _ := json.Marshal(u)
+			w.Write(ImageBody)
+		}
+	}
 	// if not found, return 404
-	// if found return image json
-	fmt.Fprintln(w, "Get Image:", imageId)
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func RunInference(w http.ResponseWriter, r *http.Request) {
-	// p := ImageParams{}
 	i := Image{}
 
 	body, err := ioutil.ReadAll(r.Body)
