@@ -30,23 +30,23 @@ func init() {
 
 }
 
-func TestCreateUser(t *testing.T) {
-	userJson := `{"username": "dennis", "balance": 200}`
-
-	reader = strings.NewReader(userJson)
-
-	request, err := http.NewRequest("POST", usersUrl, reader)
-
-	res, err := http.DefaultClient.Do(request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if res.StatusCode != 201 {
-		t.Errorf("Success expected: %d", res.StatusCode)
-	}
-}
+// func TestCreateUser(t *testing.T) {
+// 	userJson := `{"username": "dennis", "balance": 200}`
+//
+// 	reader = strings.NewReader(userJson)
+//
+// 	request, err := http.NewRequest("POST", usersUrl, reader)
+//
+// 	res, err := http.DefaultClient.Do(request)
+//
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+//
+// 	if res.StatusCode != 201 {
+// 		t.Errorf("Success expected: %d", res.StatusCode)
+// 	}
+// }
 func TestCreateImage(t *testing.T) {
 	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 
@@ -83,23 +83,23 @@ func TestUniqueImage(t *testing.T) {
 	}
 }
 
-func TestUniqueUsername(t *testing.T) {
-	userJson := `{"username": "dennis", "balance": 200}`
-
-	reader = strings.NewReader(userJson)
-
-	request, err := http.NewRequest("POST", usersUrl, reader)
-
-	res, err := http.DefaultClient.Do(request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if res.StatusCode != 400 {
-		t.Errorf("Bad Request expected: %d", res.StatusCode)
-	}
-}
+// func TestUniqueUsername(t *testing.T) {
+// 	userJson := `{"username": "dennis", "balance": 200}`
+//
+// 	reader = strings.NewReader(userJson)
+//
+// 	request, err := http.NewRequest("POST", usersUrl, reader)
+//
+// 	res, err := http.DefaultClient.Do(request)
+//
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+//
+// 	if res.StatusCode != 400 {
+// 		t.Errorf("Bad Request expected: %d", res.StatusCode)
+// 	}
+// }
 func TestListImages(t *testing.T) {
 	reader = strings.NewReader("")
 
@@ -155,8 +155,7 @@ func TestImageInference(t *testing.T) {
 	request, err := http.NewRequest("POST", imagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
-	BlankJson := ""
-	reader = strings.NewReader(BlankJson)
+	reader = strings.NewReader("")
 	InferenceUrl = InferenceUrl + "/0"
 	request, err = http.NewRequest("GET", InferenceUrl, reader)
 	res, err = http.DefaultClient.Do(request)
@@ -186,7 +185,6 @@ func TestBadImageInference(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
 	if res.StatusCode != 404 {
 		t.Errorf("Bad Request expected: %d", res.StatusCode)
 	}

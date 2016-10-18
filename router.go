@@ -24,11 +24,7 @@ func Handlers() *mux.Router {
 	s.HandleFunc("/inference/{id:[0-9]+}", RunInference).Methods("GET")
 
 	// gets image size
-	s.HandleFunc("/resize", GetImageSize).Methods("GET")
-
-	r.HandleFunc("/users", createUserHandler).Methods("POST")
-
-	r.HandleFunc("/users", listUsersHandler).Methods("GET")
+	s.HandleFunc("/resize/{id:[0-9]+}", GetImageSize).Methods("GET")
 
 	return r
 }

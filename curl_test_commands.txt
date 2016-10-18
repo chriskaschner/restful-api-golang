@@ -19,3 +19,5 @@ curl -i -H "Content-Type: application/json" -d '{"username": "dennis","title": "
 
 curl -i -H "Content-Type: application/json" -d '{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}' http://localhost:8080/img/api/v2.0/images
 curl -i -H "Content-Type: application/json" -d '{"Title": "Altras", "Url": "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}' http://localhost:8080/img/api/v2.0/images
+
+// Inference

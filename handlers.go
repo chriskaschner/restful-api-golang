@@ -33,34 +33,14 @@ type Image struct {
 	Size    Size   `json:"size"`
 }
 
-type ImageParams struct {
-	Title string `json:"title"`
-	Url   string `json:"url"`
-}
-
 type Sizes []Size
 type Results []Result
 type Images []Image
 
-type User struct {
-	Id           uint32 `json:"id"`
-	Username     string `json:"username"`
-	MoneyBalance uint32 `json:"balance"`
-	Title        string `json:"title"`
-}
-
-type UserParams struct {
-	Username     string `json:"username"`
-	MoneyBalance uint32 `json:"balance"`
-	Title        string `json:"title"`
-}
-
 var images Images
 
-var userIdCounter uint32 = 0
 var imgIdCounter int = 0
 
-var userStore = []User{}
 var ImgStore = []Image{}
 
 // func init() {
@@ -113,55 +93,6 @@ func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func createUserHandler(w http.ResponseWriter, r *http.Request) {
-	p := UserParams{}
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = json.Unmarshal(body, &p)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = validateUniqueness(p.Title)
-
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	u := User{
-		Id:           userIdCounter,
-		Username:     p.Username,
-		MoneyBalance: p.MoneyBalance,
-		Title:        p.Title,
-	}
-
-	userStore = append(userStore, u)
-
-	userIdCounter += 1
-
-	w.WriteHeader(http.StatusCreated)
-}
-
-func validateUniqueness(title string) error {
-	for _, u := range userStore {
-		if u.Title == title {
-			return errors.New("Title is already used")
-		}
-	}
-
-	return nil
-}
-
 func ValidateUnique(url string) error {
 	for _, u := range ImgStore {
 		if u.Url == url {
@@ -170,16 +101,6 @@ func ValidateUnique(url string) error {
 	}
 
 	return nil
-}
-func listUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := json.Marshal(userStore)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(users)
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -212,15 +133,25 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunInference(w http.ResponseWriter, r *http.Request) {
+	// Read image id from url
 	vars := mux.Vars(r)
 	imageId := vars["id"]
 
 	// Search for image amongst existing records in store
 	for _, u := range ImgStore {
 		IdString := strconv.Itoa(u.Id)
-		// if found, return JSON for that image
+		// if found, add inference JSON to that image
 		if IdString == imageId {
+			Result_Score, Result_Label := inception.Inference(u.Url)
+
+			u.Results = Result{
+				Result_Label_1: Result_Label,
+				Result_Score_1: Result_Score,
+			}
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusOK)
+
+			ImgStore[u.Id] = u
 			ImageBody, _ := json.Marshal(u)
 			w.Write(ImageBody)
 			return
@@ -228,54 +159,44 @@ func RunInference(w http.ResponseWriter, r *http.Request) {
 		// if not found, return 404
 		http.Error(w, "image not found", http.StatusNotFound)
 	}
-	i := Image{}
-
-	Result_Score, Result_Label := inception.Inference(i.Url)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	InferenceRes := Result{
-		Result_Label_1: Result_Label,
-		Result_Score_1: Result_Score,
-	}
-	InferenceBody, _ := json.Marshal(InferenceRes)
-	w.Write(InferenceBody)
-	// #todo: Append new inference data to existing record
-	// img := Image{
-	// 	Id:      i.Id,
-	// 	Title:   i.Title,
-	// 	Url:     i.Url,
-	// 	Results: InferenceRes,
-	// 	Resize:  i.Resize,
-	// 	Size:    i.Size,
-	// }
-	//
-	// for _, u := range ImgStore {
-	// 	if u.Url == i.Url {
-	// 		fmt.Fprintln(w, "inside ImgStore URL checking loop")
-	// 		i = img
-	// 		// append(u.Results{}, InferenceBody)
-	// 		// return errors.New("url is already used")
-	// 	}
-	// }
 }
 
 func GetImageSize(w http.ResponseWriter, r *http.Request) {
-	url := "http://i.imgur.com/Peq1U1u.jpg"
-	height, width := ImageSize(url)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	ResizeRes := &Size{
-		Height: height,
-		Width:  width,
+	// Read image id from url
+	vars := mux.Vars(r)
+	imageId := vars["id"]
+
+	// Search for image amongst existing records in store
+	for _, u := range ImgStore {
+		IdString := strconv.Itoa(u.Id)
+		// if found, add size JSON to that image
+		if IdString == imageId {
+			url := "http://i.imgur.com/Peq1U1u.jpg"
+			height, width := ImageSize(url)
+
+			u.Size = Size{
+				Height: height,
+				Width:  width,
+			}
+
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusOK)
+
+			ImgStore[u.Id] = u
+			ResizeBody, _ := json.Marshal(u)
+			w.Write(ResizeBody)
+		}
+		// if not found, return 404
+		http.Error(w, "image not found", http.StatusNotFound)
 	}
-	ResizeBody, _ := json.Marshal(ResizeRes)
-	w.Write(ResizeBody)
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
-		panic(err)
-	}
+	ImgStoreBody, _ := json.Marshal(ImgStore)
+	w.Write(ImgStoreBody)
+	// if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
+	// 	panic(err)
+	// }
 }
