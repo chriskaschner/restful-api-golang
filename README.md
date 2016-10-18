@@ -6,3 +6,4 @@ Based on the tutorials [here](http://thenewstack.io/make-a-restful-json-api-go/)
 
 # Requirements:
 - Go version 1.7
+- [Glide](https://github.com/Masterminds/glide) for dependency management

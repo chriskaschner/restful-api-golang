@@ -28,6 +28,7 @@ type Image struct {
 	Id      int    `json:"id"`
 	Title   string `json:"title"`
 	Url     string `json:"url"`
+	Uri     string `json:"uri"`
 	Results Result `json:"results"`
 	Resize  bool   `json:"resize"`
 	Size    Size   `json:"size"`
@@ -80,10 +81,12 @@ func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// #todo assemble Uri that includes full & raw path
 	img := Image{
 		Id:    imgIdCounter,
 		Title: p.Title,
 		Url:   p.Url,
+		Uri:   r.URL.String() + "/" + strconv.Itoa(imgIdCounter),
 	}
 
 	ImgStore = append(ImgStore, img)
@@ -108,12 +111,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	ImgStoreBody, _ := json.Marshal(ImgStore)
 	if len(ImgStore) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Write(ImgStoreBody)
 	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
 		panic(err)
@@ -137,6 +140,54 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	w.WriteHeader(http.StatusNotFound)
+}
+
+// #todo, currently overwrites ALL fields
+func UpdateImage(w http.ResponseWriter, r *http.Request) {
+	// Read image id from url
+	vars := mux.Vars(r)
+	imageId := vars["id"]
+
+	// read JSON in body
+	p := Image{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &p)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Search for image amongst existing records in store
+	for _, u := range ImgStore {
+		IdString := strconv.Itoa(u.Id)
+		// if found, update JSON for that image
+		if IdString == imageId {
+			u = Image{
+				Title: p.Title,
+				Url:   p.Url,
+				// Uri:    p.Uri,
+				Results: p.Results,
+				Resize:  p.Resize,
+				Size:    p.Size,
+			}
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			w.WriteHeader(http.StatusOK)
+
+			ImgStore[u.Id] = u
+			ImageBody, _ := json.Marshal(u)
+			w.Write(ImageBody)
+			return
+		}
+		// if not found, return 404
+		http.Error(w, "image not found", http.StatusNotFound)
+	}
 }
 
 func RunInference(w http.ResponseWriter, r *http.Request) {

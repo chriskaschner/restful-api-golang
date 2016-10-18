@@ -17,6 +17,9 @@ func Handlers() *mux.Router {
 	// specific image info
 	s.HandleFunc("/images/{id:[0-9]+}", GetImage).Methods("GET")
 
+	// update an image
+	s.HandleFunc("/images/{id:[0-9]+}", UpdateImage).Methods("PUT")
+
 	// create new image
 	s.HandleFunc("/images", CreateImageHandler).Methods("POST")
 

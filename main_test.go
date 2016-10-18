@@ -42,6 +42,19 @@ func TestIndex(t *testing.T) {
 	}
 }
 
+func TestEmptyListImages(t *testing.T) {
+	request, err := http.NewRequest("GET", ImagesUrl, nil)
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 404 {
+		t.Errorf("Get List of Images- expected 200 got: %d", res.StatusCode)
+	}
+}
+
 func TestCreateImage(t *testing.T) {
 	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 
@@ -60,6 +73,38 @@ func TestCreateImage(t *testing.T) {
 	}
 }
 
+func TestListImages(t *testing.T) {
+	request, err := http.NewRequest("GET", ImagesUrl, nil)
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("Get List of Images- expected 200 got: %d", res.StatusCode)
+	}
+
+}
+
+func TestCreateImageBadJson(t *testing.T) {
+	BadJson := `{"abc":"abc",}`
+
+	reader = strings.NewReader(BadJson)
+
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 500 {
+		t.Errorf("Bad JSON- expected 500, got: %d", res.StatusCode)
+	}
+}
+
 func TestUniqueImage(t *testing.T) {
 	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 
@@ -75,20 +120,6 @@ func TestUniqueImage(t *testing.T) {
 
 	if res.StatusCode != 400 {
 		t.Errorf("Bad Request expected: %d", res.StatusCode)
-	}
-}
-
-func TestListImages(t *testing.T) {
-	reader = strings.NewReader("")
-	request, err := http.NewRequest("GET", ImagesUrl, reader)
-	res, err := http.DefaultClient.Do(request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if res.StatusCode != 200 {
-		t.Errorf("Get List of Images- received %d expected 200", res.StatusCode)
 	}
 }
 
@@ -144,7 +175,7 @@ func TestImageInference(t *testing.T) {
 	}
 
 	if res.StatusCode != 200 {
-		t.Errorf("Bad Request expected: %d", res.StatusCode)
+		t.Errorf("Good Inference Request- Expected 200, got: %d", res.StatusCode)
 	}
 }
 
@@ -163,7 +194,7 @@ func TestBadImageInference(t *testing.T) {
 		t.Error(err)
 	}
 	if res.StatusCode != 404 {
-		t.Errorf("Bad Request expected: %d", res.StatusCode)
+		t.Errorf("Bad Inference Request- Expected 404, got: %d", res.StatusCode)
 	}
 }
 
@@ -183,7 +214,7 @@ func TestImageSize(t *testing.T) {
 	}
 
 	if res.StatusCode != 200 {
-		t.Errorf("Bad Request expected: %d", res.StatusCode)
+		t.Errorf("Good Resize Request- expected 200 got: %d", res.StatusCode)
 	}
 }
 
@@ -202,6 +233,6 @@ func TestBadImageSize(t *testing.T) {
 		t.Error(err)
 	}
 	if res.StatusCode != 404 {
-		t.Errorf("Bad Request expected: %d", res.StatusCode)
+		t.Errorf("Bad Resize Request- Expected 404, got: %d", res.StatusCode)
 	}
 }
