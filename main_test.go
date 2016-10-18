@@ -12,47 +12,42 @@ import (
 var (
 	server         *httptest.Server
 	reader         io.Reader
-	usersUrl       string
-	imagesUrl      string
+	ImagesUrl      string
 	InferenceUrl   string
 	IndImageUrl    string
 	BadIndImageUrl string
+	ResizeUrl      string
 )
 
 func init() {
 	server = httptest.NewServer(Handlers())
 
-	usersUrl = fmt.Sprintf("%s/users", server.URL)
-	imagesUrl = fmt.Sprintf("%s/img/api/v2.0/images", server.URL)
+	ImagesUrl = fmt.Sprintf("%s/img/api/v2.0/images", server.URL)
 	InferenceUrl = fmt.Sprintf("%s/img/api/v2.0/inference", server.URL)
-	IndImageUrl = fmt.Sprintf("%s/img/api/v2.0/images/0", server.URL)
-	BadIndImageUrl = fmt.Sprintf("%s/img/api/v2.0/images/99", server.URL)
+	ResizeUrl = fmt.Sprintf("%s/img/api/v2.0/resize", server.URL)
 
 }
 
-// func TestCreateUser(t *testing.T) {
-// 	userJson := `{"username": "dennis", "balance": 200}`
-//
-// 	reader = strings.NewReader(userJson)
-//
-// 	request, err := http.NewRequest("POST", usersUrl, reader)
-//
-// 	res, err := http.DefaultClient.Do(request)
-//
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-//
-// 	if res.StatusCode != 201 {
-// 		t.Errorf("Success expected: %d", res.StatusCode)
-// 	}
-// }
+func TestIndex(t *testing.T) {
+	request, err := http.NewRequest("GET", server.URL, nil)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("Success expected: %d", res.StatusCode)
+	}
+}
+
 func TestCreateImage(t *testing.T) {
 	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 
 	reader = strings.NewReader(ImageJson)
 
-	request, err := http.NewRequest("POST", imagesUrl, reader)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -70,7 +65,7 @@ func TestUniqueImage(t *testing.T) {
 
 	reader = strings.NewReader(ImageJson)
 
-	request, err := http.NewRequest("POST", imagesUrl, reader)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -83,28 +78,9 @@ func TestUniqueImage(t *testing.T) {
 	}
 }
 
-// func TestUniqueUsername(t *testing.T) {
-// 	userJson := `{"username": "dennis", "balance": 200}`
-//
-// 	reader = strings.NewReader(userJson)
-//
-// 	request, err := http.NewRequest("POST", usersUrl, reader)
-//
-// 	res, err := http.DefaultClient.Do(request)
-//
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-//
-// 	if res.StatusCode != 400 {
-// 		t.Errorf("Bad Request expected: %d", res.StatusCode)
-// 	}
-// }
 func TestListImages(t *testing.T) {
 	reader = strings.NewReader("")
-
-	request, err := http.NewRequest("GET", imagesUrl, reader)
-
+	request, err := http.NewRequest("GET", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
 	if err != nil {
@@ -117,25 +93,29 @@ func TestListImages(t *testing.T) {
 }
 
 func TestIndividualImageGood(t *testing.T) {
-	reader = strings.NewReader("")
-
-	request, err := http.NewRequest("GET", IndImageUrl, reader)
-
+	// setup image in Image Store
+	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
+	reader = strings.NewReader(ImageJson)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
+
+	IndImageUrl := ImagesUrl + "/0"
+	request, err = http.NewRequest("GET", IndImageUrl, nil)
+
+	res, err = http.DefaultClient.Do(request)
 
 	if err != nil {
 		t.Error(err)
 	}
 
 	if res.StatusCode != 200 {
-		t.Errorf("Get Individual Image- received %d expected 200", res.StatusCode)
+		t.Errorf("Get Good Individual Image- received %d expected 200", res.StatusCode)
 	}
 }
 
 func TestIndividualImageBad(t *testing.T) {
-	reader = strings.NewReader("")
-
-	request, err := http.NewRequest("GET", BadIndImageUrl, reader)
+	BadIndImageUrl := ImagesUrl + "/999"
+	request, err := http.NewRequest("GET", BadIndImageUrl, nil)
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -144,7 +124,7 @@ func TestIndividualImageBad(t *testing.T) {
 	}
 
 	if res.StatusCode != 404 {
-		t.Errorf("Get Individual Image- received %d expected 404", res.StatusCode)
+		t.Errorf("Get Bad Individual Image- received %d expected 404", res.StatusCode)
 	}
 }
 
@@ -152,12 +132,11 @@ func TestImageInference(t *testing.T) {
 	// setup image in Image Store
 	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 	reader = strings.NewReader(ImageJson)
-	request, err := http.NewRequest("POST", imagesUrl, reader)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
-	reader = strings.NewReader("")
 	InferenceUrl = InferenceUrl + "/0"
-	request, err = http.NewRequest("GET", InferenceUrl, reader)
+	request, err = http.NewRequest("GET", InferenceUrl, nil)
 	res, err = http.DefaultClient.Do(request)
 
 	if err != nil {
@@ -173,13 +152,50 @@ func TestBadImageInference(t *testing.T) {
 	// setup image in Image Store
 	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
 	reader = strings.NewReader(ImageJson)
-	request, err := http.NewRequest("POST", imagesUrl, reader)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
-	BlankJson := ""
-	reader = strings.NewReader(BlankJson)
 	InferenceUrl = InferenceUrl + "/999"
-	request, err = http.NewRequest("GET", InferenceUrl, reader)
+	request, err = http.NewRequest("GET", InferenceUrl, nil)
+	res, err = http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+	if res.StatusCode != 404 {
+		t.Errorf("Bad Request expected: %d", res.StatusCode)
+	}
+}
+
+func TestImageSize(t *testing.T) {
+	// setup image in Image Store
+	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
+	reader = strings.NewReader(ImageJson)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
+	res, err := http.DefaultClient.Do(request)
+
+	GoodResizeUrl := ResizeUrl + "/0"
+	request, err = http.NewRequest("GET", GoodResizeUrl, nil)
+	res, err = http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("Bad Request expected: %d", res.StatusCode)
+	}
+}
+
+func TestBadImageSize(t *testing.T) {
+	// setup image in Image Store
+	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
+	reader = strings.NewReader(ImageJson)
+	request, err := http.NewRequest("POST", ImagesUrl, reader)
+	res, err := http.DefaultClient.Do(request)
+
+	BadResizeUrl := ResizeUrl + "/9999"
+	request, err = http.NewRequest("GET", BadResizeUrl, nil)
 	res, err = http.DefaultClient.Do(request)
 
 	if err != nil {

@@ -107,9 +107,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Welcome!")
 }
 
-func NotFound(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprintln(w, "not found!")
+func ImagesIndex(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ImgStoreBody, _ := json.Marshal(ImgStore)
+	if len(ImgStore) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	w.Write(ImgStoreBody)
+	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
+		panic(err)
+	}
 }
 
 func GetImage(w http.ResponseWriter, r *http.Request) {
@@ -127,9 +135,8 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 			w.Write(ImageBody)
 			return
 		}
-		// if not found, return 404
-		http.Error(w, "image not found", http.StatusNotFound)
 	}
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func RunInference(w http.ResponseWriter, r *http.Request) {
@@ -189,14 +196,4 @@ func GetImageSize(w http.ResponseWriter, r *http.Request) {
 		// if not found, return 404
 		http.Error(w, "image not found", http.StatusNotFound)
 	}
-}
-
-func ImagesIndex(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	ImgStoreBody, _ := json.Marshal(ImgStore)
-	w.Write(ImgStoreBody)
-	// if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
-	// 	panic(err)
-	// }
 }
