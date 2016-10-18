@@ -1,5 +1,0 @@
-package: github.com/chriskaschner/restful-api-golang
-import:
-- package: github.com/chriskaschner/Inception-Retraining-Golang
-- package: github.com/gorilla/mux
-  version: ^1.1.0

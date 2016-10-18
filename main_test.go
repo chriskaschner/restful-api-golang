@@ -42,21 +42,8 @@ func TestIndex(t *testing.T) {
 	}
 }
 
-func TestEmptyListImages(t *testing.T) {
-	request, err := http.NewRequest("GET", ImagesUrl, nil)
-	res, err := http.DefaultClient.Do(request)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	if res.StatusCode != 404 {
-		t.Errorf("Get List of Images- expected 200 got: %d", res.StatusCode)
-	}
-}
-
 func TestCreateImage(t *testing.T) {
-	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
+	ImageJson := `{"Title": "Altras", "Url": "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`
 
 	reader = strings.NewReader(ImageJson)
 

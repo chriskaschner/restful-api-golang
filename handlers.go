@@ -44,11 +44,17 @@ var imgIdCounter int = 0
 
 var ImgStore = []Image{}
 
-// func init() {
-//
-// // CreateImageHandler(`{Title: "Nikes", Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`)
-// // CreateImageHandler(`{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`)
-// }
+func init() {
+	initFirst := Image{
+		Id:    imgIdCounter,
+		Title: "Nikes",
+		Url:   "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg",
+	}
+	ImgStore = append(ImgStore, initFirst)
+	imgIdCounter += 1
+	// `{Title: , Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`)
+	// // CreateImageHandler(`{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`)
+}
 func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 	p := Image{}
 
@@ -88,11 +94,8 @@ func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 		Url:   p.Url,
 		Uri:   r.URL.String() + "/" + strconv.Itoa(imgIdCounter),
 	}
-
 	ImgStore = append(ImgStore, img)
-
 	imgIdCounter += 1
-
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -102,7 +105,6 @@ func ValidateUnique(url string) error {
 			return errors.New("url is already used")
 		}
 	}
-
 	return nil
 }
 
@@ -112,10 +114,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
 	ImgStoreBody, _ := json.Marshal(ImgStore)
-	if len(ImgStore) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Write(ImgStoreBody)
 	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
