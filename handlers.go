@@ -40,7 +40,7 @@ type Images []Image
 
 var images Images
 
-var imgIdCounter int = 0
+var imgIdCounter int = 1
 
 var ImgStore = []Image{}
 
@@ -51,6 +51,7 @@ func init() {
 		Url:   "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg",
 	}
 	ImgStore = append(ImgStore, initFirst)
+
 	imgIdCounter += 1
 	// `{Title: , Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`)
 	// // CreateImageHandler(`{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`)
@@ -113,8 +114,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
+
 	ImgStoreBody, _ := json.Marshal(ImgStore)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	w.Write(ImgStoreBody)
 	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
 		panic(err)

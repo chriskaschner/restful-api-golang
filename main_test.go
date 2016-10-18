@@ -117,7 +117,7 @@ func TestIndividualImageGood(t *testing.T) {
 	request, err := http.NewRequest("POST", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
-	IndImageUrl := ImagesUrl + "/0"
+	IndImageUrl := ImagesUrl + "/1"
 	request, err = http.NewRequest("GET", IndImageUrl, nil)
 
 	res, err = http.DefaultClient.Do(request)
@@ -153,7 +153,7 @@ func TestImageInference(t *testing.T) {
 	request, err := http.NewRequest("POST", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
-	InferenceUrl = InferenceUrl + "/0"
+	InferenceUrl = InferenceUrl + "/1"
 	request, err = http.NewRequest("GET", InferenceUrl, nil)
 	res, err = http.DefaultClient.Do(request)
 
@@ -192,7 +192,7 @@ func TestImageSize(t *testing.T) {
 	request, err := http.NewRequest("POST", ImagesUrl, reader)
 	res, err := http.DefaultClient.Do(request)
 
-	GoodResizeUrl := ResizeUrl + "/0"
+	GoodResizeUrl := ResizeUrl + "/1"
 	request, err = http.NewRequest("GET", GoodResizeUrl, nil)
 	res, err = http.DefaultClient.Do(request)
 
