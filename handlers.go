@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -57,7 +56,6 @@ type UserParams struct {
 }
 
 var images Images
-var reader io.Reader
 
 var userIdCounter uint32 = 0
 var imgIdCounter int = 0
@@ -71,7 +69,7 @@ var ImgStore = []Image{}
 // // CreateImageHandler(`{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`)
 // }
 func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
-	p := ImageParams{}
+	p := Image{}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -204,31 +202,33 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 		// if found, return JSON for that image
 		if IdString == imageId {
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-			w.WriteHeader(http.StatusOK)
 			ImageBody, _ := json.Marshal(u)
 			w.Write(ImageBody)
+			return
 		}
+		// if not found, return 404
+		http.Error(w, "image not found", http.StatusNotFound)
 	}
-	// if not found, return 404
-	w.WriteHeader(http.StatusNotFound)
 }
 
 func RunInference(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	imageId := vars["id"]
+
+	// Search for image amongst existing records in store
+	for _, u := range ImgStore {
+		IdString := strconv.Itoa(u.Id)
+		// if found, return JSON for that image
+		if IdString == imageId {
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+			ImageBody, _ := json.Marshal(u)
+			w.Write(ImageBody)
+			return
+		}
+		// if not found, return 404
+		http.Error(w, "image not found", http.StatusNotFound)
+	}
 	i := Image{}
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	err = json.Unmarshal(body, &i)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 
 	Result_Score, Result_Label := inception.Inference(i.Url)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
