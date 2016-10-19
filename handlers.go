@@ -53,8 +53,7 @@ func init() {
 	ImgStore = append(ImgStore, initFirst)
 
 	imgIdCounter += 1
-	// `{Title: , Url: "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`)
-	// // CreateImageHandler(`{Title: "Altras", Url: "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`)
+
 }
 func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 	p := Image{}
@@ -114,7 +113,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
-
+	// cacheContent := map[string]interface{}{ImgStore}
+	//
+	// str, err := json.Marshal(cacheContent)
+	// if err != nil {
+	// 	fmt.Println("Error encoding JSON")
+	// 	return
+	// }
+	//
+	// fmt.Println(string(str))
 	ImgStoreBody, _ := json.Marshal(ImgStore)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
