@@ -113,18 +113,14 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
-	// cacheContent := map[string]interface{}{ImgStore}
-	//
-	// str, err := json.Marshal(cacheContent)
-	// if err != nil {
-	// 	fmt.Println("Error encoding JSON")
-	// 	return
-	// }
-	//
-	// fmt.Println(string(str))
-	ImgStoreBody, _ := json.Marshal(ImgStore)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	ImgStoreBody, err := json.Marshal(ImgStore)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Write(ImgStoreBody)
 	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
 		panic(err)
