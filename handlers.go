@@ -42,7 +42,8 @@ var images Images
 
 var imgIdCounter int = 1
 
-var ImgStore = []Image{}
+// var ImgStore []Image{}
+var ImgStore []Image
 
 func init() {
 	initFirst := Image{
