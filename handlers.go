@@ -19,8 +19,8 @@ type Size struct {
 
 //Inference info
 type Result struct {
-	Result_Label_1 string  `json:"result_label_1"`
-	Result_Score_1 float32 `json:"result_score_1"`
+	Result_Label string  `json:"result_label"`
+	Result_Score float32 `json:"result_score"`
 }
 
 // Image info
@@ -51,8 +51,8 @@ func init() {
 		Title: "Nikes",
 		Url:   "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg",
 	}
-	ImgStore = append(ImgStore, initFirst)
-
+	// ImgStore = append(ImgStore, initFirst)
+	images = append(images, initFirst)
 	imgIdCounter += 1
 
 }
@@ -95,7 +95,7 @@ func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 		Url:   p.Url,
 		Uri:   r.URL.String() + "/" + strconv.Itoa(imgIdCounter),
 	}
-	ImgStore = append(ImgStore, img)
+	images = append(images, img)
 	imgIdCounter += 1
 	w.WriteHeader(http.StatusCreated)
 }
@@ -114,15 +114,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
-	ImgStoreBody, err := json.Marshal(ImgStore)
-	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	imgagesBody, _ := json.Marshal(images)
+	// if err != nil {
+	// 	fmt.Printf("Error: %s\n", err)
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.Write(ImgStoreBody)
+	w.Write(ImagesBody)
 	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
 		panic(err)
 	}
@@ -208,8 +208,8 @@ func RunInference(w http.ResponseWriter, r *http.Request) {
 			Result_Score, Result_Label := inception.Inference(u.Url)
 
 			u.Results = Result{
-				Result_Label_1: Result_Label,
-				Result_Score_1: Result_Score,
+				Result_Label: Result_Label,
+				Result_Score: Result_Score,
 			}
 			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(http.StatusOK)
