@@ -106,7 +106,7 @@ func TestUniqueImage(t *testing.T) {
 	}
 
 	if res.StatusCode != 400 {
-		t.Errorf("Bad Request expected: %d", res.StatusCode)
+		t.Errorf("Duplicate Image received- %d, expected 400", res.StatusCode)
 	}
 }
 

@@ -54,7 +54,6 @@ func init() {
 	// ImgStore = append(ImgStore, initFirst)
 	images = append(images, initFirst)
 	imgIdCounter += 1
-
 }
 func CreateImageHandler(w http.ResponseWriter, r *http.Request) {
 	p := Image{}
@@ -114,18 +113,14 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImagesIndex(w http.ResponseWriter, r *http.Request) {
-	imagesBody, _ := json.Marshal(images)
-	// if err != nil {
-	// 	fmt.Printf("Error: %s\n", err)
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
-
+	imagesBody, err := json.Marshal(images)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Write(imagesBody)
-	if err := json.NewEncoder(w).Encode(ImgStore); err != nil {
-		panic(err)
-	}
 }
 
 func GetImage(w http.ResponseWriter, r *http.Request) {
