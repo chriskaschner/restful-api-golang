@@ -93,7 +93,7 @@ func TestCreateImageBadJson(t *testing.T) {
 }
 
 func TestUniqueImage(t *testing.T) {
-	ImageJson := `{"Title": "Nikes", "Url": "http://imgdirect.s3-website-us-west-2.amazonaws.com/nike.jpg"}`
+	ImageJson := `{"Title": "Altras", "Url": "https://s3-us-west-2.amazonaws.com/imgdirect/altra.jpg"}`
 
 	reader = strings.NewReader(ImageJson)
 
